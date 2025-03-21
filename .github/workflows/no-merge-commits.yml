@@ -1,0 +1,23 @@
+name: No Merge Commits Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  no-merge-commits:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Check for merge commits
+        run: |
+          if git log --merges origin/${{ github.base_ref }}..HEAD | grep -q 'Merge'; then
+            echo "Merge commits are not allowed."
+            exit 1
+          else
+            echo "No merge commits found."
+          fi
