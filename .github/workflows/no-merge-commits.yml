@@ -27,8 +27,8 @@ jobs:
           GIT_LOG=$(git log origin/${{ github.base_ref }}..HEAD --merges --oneline | tail -n +2)
           echo "$GIT_LOG"
           
-          # Check if there any lines in the log
-          if [ $(echo "$GIT_LOG" | wc -l) -ne 0 ]; then
+          # Check if GIT_LOG is empty
+          if [ -n "$GIT_LOG" ]; then
             echo "Merge commits are not allowed."
             exit 1
           else
