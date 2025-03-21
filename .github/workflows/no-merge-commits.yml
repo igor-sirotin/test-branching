@@ -12,10 +12,23 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Fetch base branch
+        run: git fetch origin ${{ github.base_ref }}
 
       - name: Check for merge commits
         run: |
-          if git log --merges origin/${{ github.base_ref }}..HEAD | grep -q 'Merge'; then
+          set -e  # Exit immediately if a command exits with a non-zero status
+          
+          # Save the git log from the base branch to the current HEAD. Only print merge commits.
+          # Ignore the first line (last commit), because Github always creates temporal merge commit with the base branch.
+          GIT_LOG=$(git log origin/${{ github.base_ref }}..HEAD --merges --oneline | tail -n +2)
+          echo "$GIT_LOG"
+          
+          # Check if there any lines in the log
+          if [ $(echo "$GIT_LOG" | wc -l) -ne 0 ]; then
             echo "Merge commits are not allowed."
             exit 1
           else
